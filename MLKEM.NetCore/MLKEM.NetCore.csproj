@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>ML-KEM.NetCore</PackageId>
+    <Title>ML-KEM.NetCore</Title>
+    <Version>1.0.0</Version>
+    <Authors>Timothy D Meadows II</Authors>
+    <Product>ML-KEM.NetCore</Product>
+    <Copyright>ML-KEM.NetCore is a pure managed .NET implementation of the NIST-standardized ML-KEM (Kyber) post-quantum key encapsulation mechanism.</Copyright>
+    <PackageProjectUrl>https://github.com/TimothyMeadows/ML-KEM.NetCore</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/TimothyMeadows/ML-KEM.NetCore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyName>ML-KEM.NetCore</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PinnedMemory" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MLKEM.NetCore.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
