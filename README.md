@@ -15,6 +15,7 @@ The library targets **.NET 8** and uses [`PinnedMemory`](https://github.com/Timo
 - [Installation](#installation)
 - [Quick start](#quick-start)
   - [Pinned-memory encapsulation flow](#pinned-memory-encapsulation-flow)
+  - [Alice/Bob key exchange flow](#alicebob-key-exchange-flow)
 - [API reference](#api-reference)
   - [`MLKemParameterSet`](#mlkemparameterset)
   - [`MLKem`](#mlkem)
@@ -68,6 +69,35 @@ using (keyPair.SecretKey)
         using var sharedSecretBob = kem.Decapsulate(secretKey, encapsulation.CipherText);
 
         // Compare or use shared secrets, then dispose to scrub.
+    }
+}
+```
+
+### Alice/Bob key exchange flow
+
+```csharp
+using System.Security.Cryptography;
+using MLKEM.NetCore;
+
+var kem = new MLKem(MLKemParameterSet.MLKem768);
+
+// Alice creates a long-term key pair and shares her public key.
+var aliceKeyPair = kem.GenerateKeyPair();
+using (aliceKeyPair.SecretKey)
+{
+    // Bob encapsulates to Alice's public key.
+    var bobEncapsulation = kem.Encapsulate(aliceKeyPair.PublicKey);
+    using (bobEncapsulation.SharedSecret)
+    {
+        var bobSharedSecret = bobEncapsulation.SharedSecret.Read().AsSpan(0, kem.SharedSecretBytes);
+
+        // Alice decapsulates Bob's ciphertext using her secret key.
+        var aliceSecretKey = aliceKeyPair.SecretKey.Read().AsSpan(0, kem.SecretKeyBytes);
+        using var aliceSharedSecretPinned = kem.Decapsulate(aliceSecretKey, bobEncapsulation.CipherText);
+        var aliceSharedSecret = aliceSharedSecretPinned.Read().AsSpan(0, kem.SharedSecretBytes);
+
+        var sameSecret = CryptographicOperations.FixedTimeEquals(bobSharedSecret, aliceSharedSecret);
+        Console.WriteLine($"Alice and Bob share the same secret: {sameSecret}");
     }
 }
 ```

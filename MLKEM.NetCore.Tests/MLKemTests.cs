@@ -61,6 +61,28 @@ public class MLKemTests
     }
 
     [Fact]
+    public void AliceAndBobDeriveSameSharedSecret()
+    {
+        var kem = new MLKem(MLKemParameterSet.MLKem768);
+
+        var aliceKeyPair = kem.GenerateKeyPair();
+        using (aliceKeyPair.SecretKey)
+        {
+            var bobEncapsulation = kem.Encapsulate(aliceKeyPair.PublicKey);
+            using (bobEncapsulation.SharedSecret)
+            {
+                var aliceSecretKey = aliceKeyPair.SecretKey.Read().AsSpan(0, kem.SecretKeyBytes);
+                using var aliceSharedSecretPinned = kem.Decapsulate(aliceSecretKey, bobEncapsulation.CipherText);
+
+                var bobSharedSecret = bobEncapsulation.SharedSecret.Read().AsSpan(0, kem.SharedSecretBytes).ToArray();
+                var aliceSharedSecret = aliceSharedSecretPinned.Read().AsSpan(0, kem.SharedSecretBytes).ToArray();
+
+                Assert.True(CryptographicOperations.FixedTimeEquals(bobSharedSecret, aliceSharedSecret));
+            }
+        }
+    }
+
+    [Fact]
     public void DecapsulationRejectsTamperedCiphertext()
     {
         var kem = new MLKem(MLKemParameterSet.MLKem512);
